@@ -1,0 +1,16 @@
+# Escaneos de prueba generados por 20-verify-sane.sh si se apunta
+# SCAN_TEST_DIR dentro del repositorio
+test-scans/
+*.png
+*.pnm
+*.jpg
+*.pdf
+
+# Paquetes descargados y directorios de compilación temporales
+*.deb
+build/
+
+# Editores y sistema
+*.swp
+*~
+.DS_Store
