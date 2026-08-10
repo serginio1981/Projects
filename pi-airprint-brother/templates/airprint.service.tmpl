@@ -1,0 +1,39 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<!--
+  Plantilla de servicio Avahi para AirPrint (usada por scripts/30-airprint.sh).
+
+  SOLO se instala si el CUPS del sistema no publica por sí mismo un anuncio
+  AirPrint completo. Si se instalara siempre, macOS mostraría la impresora
+  duplicada.
+
+  AirPrint exige, ambas obligatorias:
+    1. el subtipo _universal._sub._ipp._tcp
+    2. un registro TXT URF presente y NO vacío
+  Si falta cualquiera, iOS no lista la impresora y no muestra ningún error.
+
+  Marcadores sustituidos en runtime:
+    @QUEUE_NAME@      nombre de la cola CUPS
+    @QUEUE_LOCATION@  ubicación mostrada al usuario
+    @URF_VALUE@       valor del TXT URF (DM3)
+-->
+<service-group>
+  <name replace-wildcards="yes">@QUEUE_NAME@ en %h</name>
+  <service>
+    <type>_ipp._tcp</type>
+    <subtype>_universal._sub._ipp._tcp</subtype>
+    <port>631</port>
+    <txt-record>txtvers=1</txt-record>
+    <txt-record>qtotal=1</txt-record>
+    <txt-record>rp=printers/@QUEUE_NAME@</txt-record>
+    <txt-record>ty=Brother DCP-1602 (brlaser)</txt-record>
+    <txt-record>note=@QUEUE_LOCATION@</txt-record>
+    <txt-record>adminurl=http://%h.local:631/printers/@QUEUE_NAME@</txt-record>
+    <txt-record>pdl=application/pdf,image/urf,image/jpeg</txt-record>
+    <txt-record>URF=@URF_VALUE@</txt-record>
+    <txt-record>Color=F</txt-record>
+    <txt-record>Duplex=F</txt-record>
+    <txt-record>printer-state=3</txt-record>
+    <txt-record>printer-type=0x801046</txt-record>
+  </service>
+</service-group>
