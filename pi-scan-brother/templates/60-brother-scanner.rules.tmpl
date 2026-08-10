@@ -1,0 +1,6 @@
+# Regla udev para el escáner Brother — plantilla de pi-scan-brother.
+# La renderiza scripts/10-driver.sh sustituyendo:
+#   @VENDOR_ID@   vendor ID de Brother (04f9)
+#   @PRODUCT_ID@  product ID DETECTADO en runtime con lsusb (varía por modelo)
+# Sin esta regla, SANE solo puede abrir el dispositivo como root.
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="@VENDOR_ID@", ATTRS{idProduct}=="@PRODUCT_ID@", GROUP="lp", ENV{libsane_matched}="yes", MODE="0666"
