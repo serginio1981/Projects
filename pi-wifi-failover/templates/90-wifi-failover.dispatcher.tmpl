@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Dispatcher de NetworkManager instalado por pi-wifi-failover.
+# NetworkManager lo invoca con: $1=interfaz $2=acción (up/down/...).
+# Solo reacciona a los eventos del cable de red (@ETH_IFACE@) y delega la
+# lógica en /usr/local/sbin/wifi-failover.
+set -euo pipefail
+
+IFACE="${1:-}"
+ACTION="${2:-}"
+
+if [[ "${IFACE}" != "@ETH_IFACE@" ]]; then
+  exit 0
+fi
+
+case "${ACTION}" in
+  up|down)
+    exec /usr/local/sbin/wifi-failover check
+    ;;
+esac
+
+exit 0

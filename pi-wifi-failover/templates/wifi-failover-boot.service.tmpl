@@ -1,0 +1,13 @@
+[Unit]
+Description=WiFi failover al arrancar (activa la WiFi si no hay cable de red)
+# Cubre el arranque sin cable: en ese caso el dispatcher de NetworkManager no
+# recibe ningún evento de eth0 y nadie encendería la radio.
+After=NetworkManager.service
+Wants=NetworkManager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/wifi-failover boot
+
+[Install]
+WantedBy=multi-user.target
