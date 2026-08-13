@@ -71,11 +71,13 @@ lpinfo -m | grep -i brlaser
 lpstat -p Brother_DCP1602
 lpstat -a Brother_DCP1602
 lpstat -v Brother_DCP1602
-cupsctl | grep _share_printers
+cupsctl | grep -e _share_printers -e WebInterface
 ```
 
 - **Resultado esperado:** la cola aparece como *idle/enabled*, *accepting
-  requests*, con la URI USB del paso 3, y `_share_printers=1`.
+  requests*, con la URI USB del paso 3, `_share_printers=1` y
+  `WebInterface=Yes` (la consola web en el puerto 631 queda activada por la
+  instalación; si aparece como `No`, ejecútala: `sudo cupsctl WebInterface=yes`).
 - **Acción correctiva:** `sudo ./scripts/20-add-queue.sh` (idempotente). Si
   está en pausa: `sudo cupsenable Brother_DCP1602`; si rechaza trabajos:
   `sudo cupsaccept Brother_DCP1602`.

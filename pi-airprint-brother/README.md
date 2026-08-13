@@ -57,6 +57,12 @@ sudo ./install.sh
 prueba que **debes validar visualmente**: el criterio de éxito es una hoja
 física legible, no un job "completado" en CUPS.
 
+La instalación deja activada la **consola web de CUPS** (solo consulta desde
+la red) en `http://<hostname>.local:631/printers/` para ver la cola y el
+historial de trabajos. La administración remota (`cupsctl --remote-admin`)
+queda desactivada a propósito; actívala tú solo si la necesitas, sabiendo que
+expone la configuración de CUPS a toda la LAN.
+
 ### Opciones de install.sh
 
 | Opción | Efecto |

@@ -130,6 +130,11 @@ main() {
   run cupsenable "${QUEUE_NAME}"
   run cupsaccept "${QUEUE_NAME}"
   run cupsctl --share-printers
+  # La consola web de CUPS (puerto 631) viene desactivada por defecto en
+  # Debian/Raspberry Pi OS; se activa para poder consultar la cola y el
+  # historial desde el navegador. Solo lectura para la red: la administración
+  # remota (--remote-admin) queda desactivada a propósito.
+  run cupsctl WebInterface=yes
 
   if [[ "${DRY_RUN}" != "1" ]]; then
     lpstat -p "${QUEUE_NAME}" >&2
