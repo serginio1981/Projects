@@ -1,0 +1,6 @@
+# Instaladores personalizados con credenciales de red: NUNCA al repositorio
+# (este repo es público). Genera el tuyo copiando install.sh a un wrapper que
+# exporte WIFI_SSID/WIFI_PASSWORD, con un nombre que case con estos patrones.
+install-mi-red.sh
+install-*.local.sh
+*.secret.sh
