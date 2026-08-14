@@ -1,0 +1,25 @@
+# docker-compose.yml — Home Assistant Container.
+# Basado en el ejemplo oficial de instalación Container de home-assistant.io
+# (verificado el 2026-08-14). Marcadores @...@ sustituidos por
+# scripts/20-homeassistant.sh.
+#
+# network_mode: host  → HA descubre dispositivos en la LAN (mDNS/SSDP) y
+#                       escucha directo en el puerto 8123 del anfitrión.
+#                       CUPS sigue en el 631: no chocan.
+# privileged: true    → según la documentación oficial; necesario para
+#                       acceso a hardware (Bluetooth, dongles USB).
+# /run/dbus (ro)      → opcional según la doc oficial; requerido solo por la
+#                       integración Bluetooth. Se incluye porque no estorba.
+services:
+  homeassistant:
+    container_name: "@HA_CONTAINER_NAME@"
+    image: "@HA_IMAGE@"
+    volumes:
+      - "@HA_CONFIG_DIR@:/config"
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    environment:
+      TZ: "@HA_TZ@"

@@ -1,0 +1,16 @@
+# Configuración real de Home Assistant (con tokens y secretos): nunca al repo
+config/
+secrets.yaml
+*.db
+*.db-wal
+*.db-shm
+*.log
+
+# Descargas y temporales
+get-docker.sh
+*.bak
+
+# Editores y sistema
+*.swp
+*~
+.DS_Store

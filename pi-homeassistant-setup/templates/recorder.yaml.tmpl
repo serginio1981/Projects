@@ -1,0 +1,27 @@
+# recorder.yaml.example — acotar las escrituras del histórico de Home
+# Assistant para reducir el desgaste de la microSD.
+#
+# ESTO ES UN EJEMPLO: Home Assistant NO lo lee automáticamente. Copia el
+# bloque `recorder:` completo dentro de tu configuration.yaml (en el
+# directorio /config del contenedor) y reinicia HA.
+#
+# Ajusta las exclusiones a TUS entidades: la idea es no registrar lo ruidoso
+# (actualizaciones por segundo, señales WiFi, timestamps) que infla la base
+# de datos sin aportar histórico útil.
+recorder:
+  # Días de histórico que se conservan antes de purgar (menos días = menos
+  # escritura y base de datos más pequeña).
+  purge_keep_days: @PURGE_KEEP_DAYS@
+  # Agrupa escrituras a la base de datos cada N segundos (por defecto HA
+  # escribe con mucha más frecuencia).
+  commit_interval: 30
+  exclude:
+    domains:
+      - update
+    entity_globs:
+      - sensor.*_uptime
+      - sensor.*_last_boot
+      - sensor.*_wifi_signal
+      - sensor.*_rssi
+    event_types:
+      - call_service
