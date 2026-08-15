@@ -154,5 +154,7 @@ sudo ./scripts/90-verify.sh
 | Anuncio AirPrint desaparecido | Conflicto mDNS (raro) o avahi caído | Runbook paso 7 |
 | iPhone no ve la impresora pero lpstat bien | mDNS: misma causa que arriba | Runbook paso 7 |
 | Base de datos de HA gigante | Recorder sin acotar | Runbook paso 8 |
+| Integración Matter: "Failed to connect" a ws://localhost:5580/ws | Falta el Matter Server (en Container no hay add-on) | `sudo ./scripts/40-matter-server.sh` y reintenta con la URL por defecto |
+| Matter Server corre pero el emparejamiento falla | Se intenta desde Safari (imposible), o IPv6 filtrado en la LAN, o dispositivo Thread sin border router | Usar la app móvil oficial de HA; revisar IPv6 en el router; Thread requiere border router (fuera de alcance) |
 | Tras actualizar HA no arranca | Imagen nueva con breaking change | `docker logs`; fija versión: `HA_IMAGE=ghcr.io/home-assistant/home-assistant:<versión>` y redespliega |
 | microSD llena | Logs/imágenes acumuladas | `sudo docker system df`; `sudo docker image prune -f` |

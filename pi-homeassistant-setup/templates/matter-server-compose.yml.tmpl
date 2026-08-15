@@ -1,0 +1,23 @@
+# docker-compose.yml — Matter Server para la integración Matter de HA.
+# Basado en docs/docker.md del proyecto oficial matter-js/python-matter-server
+# (verificado el 2026-08-15). Marcadores @...@ sustituidos por
+# scripts/40-matter-server.sh.
+#
+# network_mode: host       → requerido para mDNS (así descubre los
+#                            dispositivos Matter; convive con avahi igual
+#                            que HA, verificado en 90-verify.sh).
+# apparmor:unconfined      → necesario para el soporte Bluetooth, según la
+#                            documentación oficial.
+# /run/dbus (ro)           → Bluetooth para el commissioning local.
+# El WebSocket queda en ws://localhost:5580/ws (el default que ofrece HA).
+services:
+  matter-server:
+    container_name: "@MATTER_CONTAINER_NAME@"
+    image: "@MATTER_IMAGE@"
+    restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - "@MATTER_DATA_DIR@:/data"
+      - /run/dbus:/run/dbus:ro
+    network_mode: host

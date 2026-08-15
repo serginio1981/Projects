@@ -23,6 +23,12 @@ fi
 : "${HA_PORT:=8123}"
 : "${HA_BASE_DIR:=/opt/homeassistant}"
 : "${HA_CONFIG_DIR:=${HA_BASE_DIR}/config}"
+# Matter Server opcional (40-matter-server.sh):
+: "${MATTER_CONTAINER_NAME:=matter-server}"
+: "${MATTER_IMAGE:=ghcr.io/matter-js/python-matter-server:stable}"
+: "${MATTER_BASE_DIR:=${HA_BASE_DIR}/matter-server}"
+: "${MATTER_DATA_DIR:=${MATTER_BASE_DIR}/data}"
+: "${MATTER_WS_PORT:=5580}"
 # Rotación de logs de Docker (30-hardening-sd.sh):
 : "${DOCKER_LOG_MAX_SIZE:=10m}"
 : "${DOCKER_LOG_MAX_FILE:=3}"
@@ -32,6 +38,7 @@ fi
 
 export DRY_RUN ASSUME_YES SKIP_HARDENING
 export HA_CONTAINER_NAME HA_IMAGE HA_TZ HA_PORT HA_BASE_DIR HA_CONFIG_DIR
+export MATTER_CONTAINER_NAME MATTER_IMAGE MATTER_BASE_DIR MATTER_DATA_DIR MATTER_WS_PORT
 export DOCKER_LOG_MAX_SIZE DOCKER_LOG_MAX_FILE RECORDER_PURGE_KEEP_DAYS
 export STATE_FILE
 

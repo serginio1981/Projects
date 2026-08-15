@@ -27,6 +27,15 @@ lpstat -p                                   # cola idle/enabled
 avahi-browse -rt _ipp._tcp | grep '^=' | head -3   # anuncio AirPrint visible
 ```
 
+## 1b. Si desplegaste el Matter Server opcional
+
+```bash
+sudo docker stop matter-server
+sudo docker rm matter-server
+sudo docker image rm ghcr.io/matter-js/python-matter-server:stable
+sudo rm -rf /opt/homeassistant/matter-server    # borra credenciales de emparejamiento Matter
+```
+
 ## 2. Borrar la imagen de Home Assistant (libera ~1.5 GB)
 
 ```bash

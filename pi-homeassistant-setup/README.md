@@ -167,10 +167,46 @@ configuración en `/config` persiste. Después, borra imágenes viejas con
   se resuelve con otro contenedor o servicio del sistema.
 - **Integraciones que dependen de add-ons** — por ejemplo **Thread** y
   **Z-Wave** — no tienen soporte inmediato en instalaciones Container
-  (requieren desplegar sus servicios por separado).
+  (requieren desplegar sus servicios por separado). Para **Matter** ese
+  servicio ya está resuelto aquí: ver la sección siguiente.
 - **Actualizaciones manuales** (procedimiento arriba).
 - 2 GB de RAM alcanzan para CUPS + Docker + HA **sin holgura**: el preflight
   lo reporta; evita apilar más servicios pesados en esta Pi.
+
+## Matter (opcional): dispositivos Matter en modo Container
+
+La integración Matter de HA necesita el **Matter Server**, que en HA OS es
+un add-on. Aquí se despliega como otro contenedor (paso opcional, fuera del
+flujo por defecto de `install.sh`):
+
+```bash
+sudo ./scripts/40-matter-server.sh
+```
+
+Compose tomado de la documentación oficial del proyecto
+([matter-js/python-matter-server](https://github.com/matter-js/python-matter-server),
+`docs/docker.md`, verificado el **2026-08-15**): imagen
+`ghcr.io/matter-js/python-matter-server:stable`, `network_mode: host`,
+`apparmor:unconfined` y `/run/dbus` (Bluetooth), datos persistentes en
+`/opt/homeassistant/matter-server/data`.
+
+Después, en HA: **Ajustes → Dispositivos y servicios → Añadir integración →
+Matter**, aceptando la URL por defecto `ws://localhost:5580/ws` (HA corre en
+red host, así que `localhost` alcanza al Matter Server).
+
+Puntos que conviene saber:
+
+- **El emparejamiento se hace desde la app móvil oficial de Home Assistant**
+  (usa el Bluetooth del teléfono para hablar con el dispositivo nuevo).
+  Desde Safari/PWA no se puede emparejar.
+- **Matter sobre WiFi** (ampolletas y enchufes WiFi con logo Matter)
+  funciona con esto tal cual. **Matter sobre Thread** además necesita un
+  border router de Thread (HomePod mini, Apple TV 4K reciente o un dongle
+  dedicado): eso sigue fuera del alcance de este proyecto.
+- Matter usa IPv6 de enlace local; Raspberry Pi OS lo trae habilitado por
+  defecto. Si tu router filtra IPv6 en la LAN, el commissioning puede fallar.
+- Variables: `MATTER_CONTAINER_NAME`, `MATTER_IMAGE`, `MATTER_BASE_DIR`,
+  `MATTER_DATA_DIR`, `MATTER_WS_PORT` (defaults en `lib/common.sh`).
 
 ## Documentación
 

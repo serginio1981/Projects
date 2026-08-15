@@ -147,6 +147,23 @@ check_mdns_coexistence() {
   fi
 }
 
+# Solo si el Matter Server opcional (40-matter-server.sh) está desplegado.
+check_matter_server() {
+  if ! docker_ready; then
+    return 0
+  fi
+  if ! docker ps -a --format '{{.Names}}' 2>/dev/null | grep -qxF "${MATTER_CONTAINER_NAME}"; then
+    return 0
+  fi
+  if docker ps --format '{{.Names}}' 2>/dev/null | grep -qxF "${MATTER_CONTAINER_NAME}" \
+    && port_listening "${MATTER_WS_PORT}"; then
+    log_ok "Matter Server corriendo y escuchando en el puerto ${MATTER_WS_PORT}."
+  else
+    log_warn "El Matter Server existe pero no está sano. Diagnóstico: docker logs ${MATTER_CONTAINER_NAME} --tail 50"
+    WARNINGS=$((WARNINGS + 1))
+  fi
+}
+
 main() {
   parse_flags "$@"
   require_cmd systemctl curl
@@ -154,6 +171,7 @@ main() {
   check_homeassistant
   check_print_server
   check_mdns_coexistence
+  check_matter_server
 
   echo >&2
   if [[ "${HA_OK}" == "1" && "${PRINT_OK}" == "1" ]]; then
