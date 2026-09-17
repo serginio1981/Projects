@@ -15,6 +15,7 @@ from .geo import Event, GeofenceTracker, Transition, Zone
 from .notifiers import (
     ConsoleNotifier,
     EmailNotifier,
+    HomeAssistantNotifier,
     Notifier,
     TelegramNotifier,
     broadcast,
@@ -32,6 +33,11 @@ log = logging.getLogger(__name__)
 def build_provider(cfg: Config) -> LocationProvider:
     if cfg.google:
         return GoogleMapsSharingProvider(cfg.google.cookies_file, cfg.google.account_email, cfg.google.person)
+    if cfg.find_my_device:
+        from .findmydevice import FindMyDeviceProvider
+
+        f = cfg.find_my_device
+        return FindMyDeviceProvider(f.secrets_file, f.device, f.tools_dir, f.request_timeout_s, f.min_request_interval_s)
     assert cfg.file_provider_path  # garantizado por load_config
     return FileProvider(cfg.file_provider_path)
 
@@ -45,6 +51,8 @@ def build_notifiers(cfg: Config) -> list[Notifier]:
     if cfg.email:
         e = cfg.email
         notifiers.append(EmailNotifier(e.host, e.port, e.username, e.password, e.sender, e.recipients, e.use_starttls))
+    if cfg.home_assistant:
+        notifiers.append(HomeAssistantNotifier(cfg.home_assistant.webhook_url))
     return notifiers
 
 
@@ -74,6 +82,10 @@ def in_quiet_hours(quiet: Optional[tuple[int, int]], now: Optional[datetime] = N
     return hour >= start or hour < end
 
 
+def maps_link(latitude: float, longitude: float) -> str:
+    return f"https://www.google.com/maps/search/?api=1&query={latitude:.6f},{longitude:.6f}"
+
+
 def format_message(cfg: Config, event: Event) -> tuple[str, str]:
     name = cfg.child_name
     when = event.sample.timestamp.astimezone().strftime("%H:%M")
@@ -88,7 +100,26 @@ def format_message(cfg: Config, event: Event) -> tuple[str, str]:
         lines.append(f"Dirección: {event.sample.address}")
     if event.sample.battery_level is not None:
         lines.append(f"Batería del teléfono: {event.sample.battery_level}%")
+    lines.append(maps_link(event.sample.latitude, event.sample.longitude))
     return title, "\n".join(lines)
+
+
+def event_context(cfg: Config, event: Event) -> dict:
+    """Datos estructurados del evento para los canales que los aprovechan (Home Assistant)."""
+    s = event.sample
+    return {
+        "name": cfg.child_name,
+        "event": event.transition.value if event.transition else None,
+        "zone": event.zone.value,
+        "latitude": s.latitude,
+        "longitude": s.longitude,
+        "accuracy_m": s.accuracy_m,
+        "distance_m": round(event.distance_m),
+        "address": s.address,
+        "battery_level": s.battery_level,
+        "timestamp": s.timestamp.isoformat(),
+        "maps_url": maps_link(s.latitude, s.longitude),
+    }
 
 
 class StateStore:
@@ -146,7 +177,7 @@ class Monitor:
             return None
 
         if sample is None:
-            log.warning("%s no aparece entre las personas que comparten ubicación contigo", self.cfg.child_name)
+            log.warning("Sin posición para %s (no comparte ubicación o el dispositivo no reporta)", self.cfg.child_name)
             return None
 
         previous_zone = self.tracker.zone
@@ -168,7 +199,7 @@ class Monitor:
             return event
 
         title, body = format_message(self.cfg, event)
-        failed = broadcast(self.notifiers, title, body)
+        failed = broadcast(self.notifiers, title, body, event_context(self.cfg, event))
         if failed:
             log.warning("%d canal(es) de aviso fallaron", failed)
         return event

@@ -5,3 +5,6 @@ config.yaml
 cookies.txt
 state.json
 .pytest_cache/
+secrets.json
+.env
+vendor/GoogleFindMyTools/Auth/secrets.json

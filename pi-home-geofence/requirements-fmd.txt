@@ -1,0 +1,20 @@
+# Dependencias del proveedor find_my_device (vendor/GoogleFindMyTools).
+# Es la requirements.txt de la herramienta SIN `frida` (solo lo usa para
+# análisis de firmware; ningún módulo del camino de localización lo importa).
+# selenium y undetected-chromedriver solo hacen falta porque la herramienta
+# los importa al cargar: la autenticación con Chrome se hace en el PC.
+gpsoauth>=1.1.1
+protobuf>=5.28
+cryptography>=43.0
+pycryptodomex>=3.21
+ecdsa>=0.19
+pyscrypt>=1.6
+pytz>=2024.2
+http_ece>=1.1
+aiohttp>=3.11
+httpx>=0.28
+h2>=4.1
+beautifulsoup4>=4.12
+requests>=2.32
+selenium>=4.27
+undetected-chromedriver>=3.5.5

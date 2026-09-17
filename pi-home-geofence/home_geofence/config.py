@@ -33,6 +33,20 @@ class GoogleConfig:
 
 
 @dataclass
+class FindMyDeviceConfig:
+    secrets_file: str
+    device: str
+    tools_dir: Optional[str] = None
+    request_timeout_s: float = 60.0
+    min_request_interval_s: float = 300.0
+
+
+@dataclass
+class HomeAssistantConfig:
+    webhook_url: str
+
+
+@dataclass
 class TelegramConfig:
     bot_token: str
     chat_id: str
@@ -54,12 +68,14 @@ class Config:
     child_name: str
     home: HomeConfig
     google: Optional[GoogleConfig] = None
+    find_my_device: Optional[FindMyDeviceConfig] = None
     file_provider_path: Optional[str] = None
     poll_interval_s: int = 60
     notify_on_leave: bool = True
     quiet_hours: Optional[tuple[int, int]] = None  # (desde, hasta) en hora local, 0-23
     telegram: Optional[TelegramConfig] = None
     email: Optional[EmailConfig] = None
+    home_assistant: Optional[HomeAssistantConfig] = None
     console: bool = True
     state_file: Optional[str] = None
     log_level: str = "INFO"
@@ -112,11 +128,29 @@ def load_config(path: str | Path) -> Config:
             account_email=str(_require(g, "account_email", "google")),
             person=str(_require(g, "person", "google")),
         )
+    fmd = None
+    if raw.get("find_my_device"):
+        f = raw["find_my_device"]
+        fmd = FindMyDeviceConfig(
+            secrets_file=str(_require(f, "secrets_file", "find_my_device")),
+            device=str(_require(f, "device", "find_my_device")),
+            tools_dir=(str(f["tools_dir"]) if f.get("tools_dir") else None),
+            request_timeout_s=float(f.get("request_timeout_s", 60)),
+            min_request_interval_s=float(f.get("min_request_interval_s", 300)),
+        )
     file_provider_path = (raw.get("file_provider") or {}).get("path")
-    if not google and not file_provider_path:
-        raise ConfigError("Configura la sección 'google' (o 'file_provider' para pruebas)")
+    sources = [name for name, present in (("google", google), ("find_my_device", fmd),
+                                          ("file_provider", file_provider_path)) if present]
+    if not sources:
+        raise ConfigError("Configura una fuente: 'google', 'find_my_device' o 'file_provider' (pruebas)")
+    if len(sources) > 1:
+        raise ConfigError(f"Configura una sola fuente de ubicación, no varias: {', '.join(sources)}")
 
     notif = raw.get("notify") or {}
+    home_assistant = None
+    if notif.get("home_assistant"):
+        h = notif["home_assistant"]
+        home_assistant = HomeAssistantConfig(webhook_url=str(_require(h, "webhook_url", "notify.home_assistant")))
     telegram = None
     if notif.get("telegram"):
         t = notif["telegram"]
@@ -147,15 +181,17 @@ def load_config(path: str | Path) -> Config:
             raise ConfigError("notify.quiet_hours debe tener 'from' y 'to' (0-23)") from exc
 
     return Config(
-        child_name=str(raw.get("child_name") or (google.person if google else "hijo")),
+        child_name=str(raw.get("child_name") or (google.person if google else fmd.device if fmd else "hijo")),
         home=home,
         google=google,
+        find_my_device=fmd,
         file_provider_path=file_provider_path,
         poll_interval_s=int(raw.get("poll_interval_s", 60)),
         notify_on_leave=bool(notif.get("on_leave", True)),
         quiet_hours=quiet_hours,
         telegram=telegram,
         email=email,
+        home_assistant=home_assistant,
         console=bool(notif.get("console", True)),
         state_file=raw.get("state_file"),
         log_level=str(raw.get("log_level", "INFO")).upper(),

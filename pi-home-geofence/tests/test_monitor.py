@@ -29,8 +29,9 @@ class MemoryNotifier(Notifier):
     def __init__(self):
         self.sent = []
 
-    def send(self, title, body):
+    def send(self, title, body, context=None):
         self.sent.append((title, body))
+        self.last_context = context
 
 
 def sample(dist_m, accuracy=20.0):
@@ -62,6 +63,27 @@ def test_arrival_sends_one_notification(tmp_path):
     title, body = notifier.sent[0]
     assert "Peque" in title and "llegó" in title
     assert "Calle Falsa 123" in body
+    assert "google.com/maps" in body
+    ctx = notifier.last_context
+    assert ctx["event"] == "entered" and ctx["name"] == "Peque"
+    assert abs(ctx["latitude"] - HOME[0]) < 0.001 and ctx["distance_m"] == 10
+
+
+def test_config_rejects_two_sources(tmp_path):
+    p = write_config(tmp_path, google={"cookies_file": "c", "account_email": "a@b", "person": "x"})
+    with pytest.raises(ConfigError, match="una sola fuente"):
+        load_config(p)
+
+
+def test_config_find_my_device_and_home_assistant(tmp_path):
+    p = write_config(tmp_path, file_provider=None,
+                     find_my_device={"secrets_file": "./s.json", "device": "Pixel"},
+                     notify={"console": False, "home_assistant": {"webhook_url": "http://ha:8123/api/webhook/x"}})
+    cfg = load_config(p)
+    assert cfg.find_my_device.device == "Pixel"
+    assert cfg.find_my_device.min_request_interval_s == 300
+    assert cfg.home_assistant.webhook_url.endswith("/webhook/x")
+    assert cfg.child_name == "Peque"
 
 
 def test_leave_can_be_muted(tmp_path):
@@ -101,7 +123,7 @@ def test_failing_notifier_does_not_break_others(tmp_path):
     class Broken(Notifier):
         name = "broken"
 
-        def send(self, title, body):
+        def send(self, title, body, context=None):
             raise RuntimeError("sin red")
 
     cfg = load_config(write_config(tmp_path))

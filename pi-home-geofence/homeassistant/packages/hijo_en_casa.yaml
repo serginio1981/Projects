@@ -1,0 +1,112 @@
+# Package de Home Assistant: avisos de "llegó / salió de casa" en la app
+# Companion (iOS/Android) con mapa.
+#
+# Instalación (ver docs/HOME-ASSISTANT.md):
+#   1. Copia este fichero a <config de HA>/packages/hijo_en_casa.yaml
+#   2. En configuration.yaml:   homeassistant:
+#                                 packages: !include_dir_named packages
+#   3. Sustituye los DOS marcadores:
+#        __MOBILE_APP__      → nombre de tu iPhone en HA, p. ej. iphone_de_sergio
+#                               (Ajustes → Dispositivos y servicios → Mobile App;
+#                                o busca "notify.mobile_app_" en Herramientas para desarrolladores → Acciones)
+#        __WEBHOOK_ID__      → un id largo y aleatorio, p. ej. el resultado de
+#                               `openssl rand -hex 16`. El mismo va en config.yaml
+#                               de pi-home-geofence: notify.home_assistant.webhook_url:
+#                               http://<ip-de-la-pi>:8123/api/webhook/__WEBHOOK_ID__
+#   4. Herramientas para desarrolladores → YAML → "Comprobar configuración" y
+#      luego "Reiniciar" (o "Recargar automatizaciones").
+#
+# Hay DOS automatizaciones; usa la que corresponda a tu montaje:
+#   A) pi-home-geofence avisa por webhook (proveedor google o find_my_device).
+#   B) Sin pi-home-geofence: la integración "Google Find My Device" de HA
+#      (BSkando/GoogleFindMy-HA) crea device_tracker.<telefono> y HA decide
+#      la zona por sí mismo. Cambia __DEVICE_TRACKER__ y borra la A si no la usas.
+
+automation:
+  # ------------------------------------------------------------------ A
+  - id: hijo_en_casa_webhook
+    alias: "Hijo en casa: aviso desde pi-home-geofence"
+    description: >-
+      Recibe el evento del monitor (entered/left/test) y lo reenvía al iPhone
+      con un mapa de la posición.
+    mode: queued
+    triggers:
+      - trigger: webhook
+        webhook_id: "__WEBHOOK_ID__"
+        allowed_methods: [POST]
+        local_only: true
+    variables:
+      title: "{{ trigger.json.title | default('Aviso del monitor') }}"
+      message: "{{ trigger.json.message | default('') }}"
+      event: "{{ trigger.json.event | default('') }}"
+      lat: "{{ trigger.json.latitude | default(none) }}"
+      lon: "{{ trigger.json.longitude | default(none) }}"
+    actions:
+      - choose:
+          # Con coordenadas: notificación con mapa (iOS: action_data; Android
+          # ignora action_data y muestra solo texto, más el enlace).
+          - conditions: "{{ lat is number and lon is number }}"
+            sequence:
+              - action: notify.mobile_app___MOBILE_APP__
+                data:
+                  title: "{{ title }}"
+                  message: "{{ message }}"
+                  data:
+                    tag: hijo_en_casa
+                    group: familia
+                    url: "https://www.google.com/maps/search/?api=1&query={{ lat }},{{ lon }}"
+                    action_data:
+                      latitude: "{{ lat }}"
+                      longitude: "{{ lon }}"
+                      shows_user_location: false
+                      shows_points_of_interest: true
+        default:
+          - action: notify.mobile_app___MOBILE_APP__
+            data:
+              title: "{{ title }}"
+              message: "{{ message }}"
+              data:
+                tag: hijo_en_casa
+                group: familia
+
+  # ------------------------------------------------------------------ B
+  - id: hijo_en_casa_device_tracker
+    alias: "Hijo en casa: aviso desde device_tracker (integración Google Find My Device)"
+    description: >-
+      Cuando el device_tracker del teléfono entra en la zona "home" y se
+      mantiene 3 minutos (evita rebotes del GPS), avisa al iPhone. Idem al salir.
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: device_tracker.__DEVICE_TRACKER__
+        to: "home"
+        for: "00:03:00"
+        id: llego
+      - trigger: state
+        entity_id: device_tracker.__DEVICE_TRACKER__
+        from: "home"
+        for: "00:03:00"
+        id: salio
+    conditions:
+      # No avisar de noche (ajusta o elimina).
+      - condition: time
+        after: "07:00:00"
+        before: "23:00:00"
+    variables:
+      lat: "{{ state_attr('device_tracker.__DEVICE_TRACKER__', 'latitude') }}"
+      lon: "{{ state_attr('device_tracker.__DEVICE_TRACKER__', 'longitude') }}"
+      acc: "{{ state_attr('device_tracker.__DEVICE_TRACKER__', 'gps_accuracy') }}"
+    actions:
+      - action: notify.mobile_app___MOBILE_APP__
+        data:
+          title: >-
+            {% if trigger.id == 'llego' %}🏠 Llegó a casa{% else %}🚶 Salió de casa{% endif %}
+          message: >-
+            {{ now().strftime('%H:%M') }}{% if acc %} · precisión ±{{ acc }} m{% endif %}
+          data:
+            tag: hijo_en_casa
+            group: familia
+            url: "https://www.google.com/maps/search/?api=1&query={{ lat }},{{ lon }}"
+            action_data:
+              latitude: "{{ lat }}"
+              longitude: "{{ lon }}"
