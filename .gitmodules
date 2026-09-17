@@ -1,0 +1,3 @@
+[submodule "pi-home-geofence/vendor/GoogleFindMyTools"]
+	path = pi-home-geofence/vendor/GoogleFindMyTools
+	url = https://github.com/leonboe1/GoogleFindMyTools
