@@ -1,0 +1,16 @@
+[Unit]
+Description=Aviso de llegada a casa (geocerca con ubicación compartida de Google Maps)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__USER__
+WorkingDirectory=__DIR__
+EnvironmentFile=-__DIR__/.env
+ExecStart=__DIR__/venv/bin/python -m home_geofence --config __DIR__/config.yaml
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

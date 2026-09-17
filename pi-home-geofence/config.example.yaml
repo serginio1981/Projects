@@ -1,0 +1,63 @@
+# Copia este fichero a config.yaml y rellena tus datos.
+# Cualquier valor puede escribirse como ${VARIABLE} para leerlo del entorno.
+
+child_name: "Mi hijo"          # nombre que aparecerá en los avisos
+
+home:
+  latitude: -33.4489           # coordenadas de tu casa (clic derecho en Google Maps → copiar)
+  longitude: -70.6693
+  radius_m: 100                # "en casa" = a menos de esta distancia
+  hysteresis_m: 50             # se considera "fuera" solo al superar radius_m + hysteresis_m
+  confirm_samples: 2           # muestras consecutivas necesarias para confirmar un cambio
+  max_accuracy_m: 250          # se ignoran posiciones con peor precisión que esta (null = no filtrar)
+  max_age_min: 15              # se ignoran posiciones más antiguas que esto (null = no filtrar)
+
+# ---------------------------------------------------------------------------
+# FUENTE DE UBICACIÓN: activa UNA sola de las tres secciones siguientes.
+# ---------------------------------------------------------------------------
+
+# (A) Red "Find My Device / Find Hub" de Google: localiza el TELÉFONO como
+#     dispositivo. Requiere autenticarse con la cuenta del hijo en un PC con
+#     Chrome (ver README, "Find My Device") y copiar secrets.json a la Pi.
+find_my_device:
+  secrets_file: ./secrets.json # generado por vendor/GoogleFindMyTools/main.py en el PC
+  device: "Pixel de Juan"      # nombre del teléfono en Find Hub, o su canonic id (ver --list-devices)
+  request_timeout_s: 60        # espera máxima de la respuesta push de Google
+  min_request_interval_s: 300  # no consultar a Google más a menudo que esto (evita bloqueos)
+
+# (B) Ubicación que el hijo COMPARTE contigo (Google Maps / Find Hub → Personas /
+#     Family Link). Se autentica con TU cuenta mediante cookies.
+# google:
+#   cookies_file: ./cookies.txt  # cookies de TU cuenta (formato Netscape), ver README
+#   account_email: tu.cuenta@gmail.com
+#   person: "Nombre del hijo"    # nickname o nombre completo tal como lo muestra --list-people
+
+# (C) Solo para pruebas sin Google: un JSON local que puedes editar a mano.
+# file_provider:
+#   path: ./posicion.json      # {"latitude": ..., "longitude": ..., "accuracy": 20, "timestamp": "2026-09-17T18:00:00+00:00"}
+
+poll_interval_s: 300           # cada cuánto consultar. Con find_my_device no bajes de 300; con google, 60 va bien
+state_file: ./state.json       # recuerda si estaba en casa entre reinicios (evita avisos duplicados)
+log_level: INFO
+
+notify:
+  console: true                # siempre útil para ver qué pasa en el log
+  on_leave: true               # avisar también cuando sale de casa
+  # quiet_hours: { from: 23, to: 7 }   # no avisar entre las 23:00 y las 07:00 (hora local)
+
+  # App Companion de Home Assistant en el iPhone (aviso con mapa). Ver docs/HOME-ASSISTANT.md
+  home_assistant:
+    webhook_url: http://homeassistant.local:8123/api/webhook/${HA_WEBHOOK_ID}
+
+  # telegram:
+  #   bot_token: ${TELEGRAM_BOT_TOKEN}
+  #   chat_id: ${TELEGRAM_CHAT_ID}
+
+  # email:
+  #   host: smtp.gmail.com
+  #   port: 587
+  #   username: tu.cuenta@gmail.com
+  #   password: ${SMTP_APP_PASSWORD}   # contraseña de aplicación, no la de la cuenta
+  #   sender: tu.cuenta@gmail.com
+  #   recipients: [tu.cuenta@gmail.com]
+  #   use_starttls: true
