@@ -19,6 +19,7 @@ struct Knob: View {
     var enabled: Bool = true
 
     @State private var dragStart: Float?
+    @State private var dragOrigin: CGPoint?
 
     private var position: CGFloat {
         let span = range.upperBound - range.lowerBound
@@ -50,12 +51,16 @@ struct Knob: View {
         .gesture(
             DragGesture(minimumDistance: 2)
                 .onChanged { g in
-                    if dragStart == nil { dragStart = value }
+                    // Un gesto cancelado por el sistema no pasa por onEnded: se detecta el arrastre nuevo por su origen.
+                    if dragStart == nil || dragOrigin != g.startLocation {
+                        dragStart = value
+                        dragOrigin = g.startLocation
+                    }
                     let span = range.upperBound - range.lowerBound
                     let v = (dragStart ?? value) + Float(-g.translation.height / 160) * span
                     value = min(range.upperBound, max(range.lowerBound, v))
                 }
-                .onEnded { _ in dragStart = nil }
+                .onEnded { _ in dragStart = nil; dragOrigin = nil }
         )
         .simultaneousGesture(TapGesture(count: 2).onEnded { value = defaultValue })
         .opacity(enabled ? 1 : 0.35)

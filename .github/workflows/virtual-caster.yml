@@ -148,7 +148,7 @@ jobs:
         run: |
           xcodebuild -project VirtualCaster.xcodeproj -target VirtualCaster \
             -configuration Debug -sdk iphonesimulator SYMROOT="$PWD/build" build
-          UDID=$(xcrun simctl list devices available | grep -E '^[[:space:]]+iPad' | head -1 | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}')
+          UDID=$(xcrun simctl list devices available | grep -E '^[[:space:]]+iPad' | head -1 | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' || true)
           test -n "$UDID" || { echo "::error::No hay un simulador de iPad disponible"; exit 1; }
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl install "$UDID" build/Debug-iphonesimulator/VirtualCaster.app

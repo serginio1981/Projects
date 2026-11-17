@@ -66,8 +66,10 @@ struct ConsoleView: View {
                 .disabled(!caster.running)
             Button("Cargar música…") { importTarget = .music; showImporter = true }
                 .buttonStyle(.bordered)
+                .disabled(!caster.running)
             Button("Detener música") { caster.stopMusic() }
                 .buttonStyle(.bordered)
+                .disabled(!caster.running)
             Text(caster.status)
                 .font(.footnote)
                 .foregroundColor(Skin.accent)
@@ -167,7 +169,10 @@ struct ConsoleView: View {
                         .overlay(RoundedRectangle(cornerRadius: 7).stroke(Color.black, lineWidth: 1))
                         .contentShape(Rectangle())
                         .onTapGesture { caster.triggerPad(i) }
-                        .onLongPressGesture { importTarget = .pad(i); showImporter = true }
+                        .onLongPressGesture {
+                            guard caster.running else { return }
+                            importTarget = .pad(i); showImporter = true
+                        }
                 }
             }
             Spacer(minLength: 0)
