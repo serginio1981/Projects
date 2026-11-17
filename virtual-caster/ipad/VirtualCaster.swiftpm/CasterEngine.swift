@@ -4,7 +4,7 @@ import Combine
 /// Motor de la consola en iPad, construido con nodos estándar de AVAudioEngine.
 ///
 /// Grafo:  entrada ─► EQ (ganancia + 3 bandas) ─► reverb ─► micMixer (fader/mute) ─┐
-///         música (archivo) ───────────────────────────────────────────────────────┼─► mainMixer ─► salida
+///         música (archivo) ─► musicMixer ─────────────────────────────────────────┼─► mainMixer ─► salida
 ///         8 pads ─► padMixer ─────────────────────────────────────────────────────┘
 ///
 /// Limitaciones del prototipo (ver docs/ESPECIFICACION.md): un solo canal de micrófono,
@@ -17,6 +17,7 @@ final class CasterEngine: ObservableObject {
     private let reverb = AVAudioUnitReverb()
     private let micMixer = AVAudioMixerNode()
     private let musicPlayer = AVAudioPlayerNode()
+    private let musicMixer = AVAudioMixerNode()
     private let padMixer = AVAudioMixerNode()
     private let padPlayers = (0..<CasterEngine.padCount).map { _ in AVAudioPlayerNode() }
     private var padBuffers = [AVAudioPCMBuffer?](repeating: nil, count: CasterEngine.padCount)
@@ -27,6 +28,10 @@ final class CasterEngine: ObservableObject {
     @Published var running = false
     @Published var recording = false
     @Published var status = "Apagada"
+    // Medidores en dBFS (−60 a 0)
+    @Published var musicDb: Float = -60
+    @Published var micDb: Float = -60
+    @Published var padDb: Float = -60
     @Published var outputDb: Float = -60
 
     // Perillas y botones
@@ -36,15 +41,16 @@ final class CasterEngine: ObservableObject {
     @Published var highDb: Float = 0 { didSet { micEQ.bands[2].gain = highDb } }
     @Published var fader: Float = 0.8 { didSet { applyMic() } }
     @Published var muted = false { didSet { applyMic() } }
-    @Published var reverbOn = false { didSet { applyReverb() } }
-    @Published var reverbAmount: Float = 0.3 { didSet { applyReverb() } }
-    @Published var reverbPreset = 2 { didSet { applyReverb() } }
-    @Published var musicLevel: Float = 0.7 { didSet { musicPlayer.volume = musicLevel } }
+    /// Perilla REVERB; en 0 la reverberación queda desactivada.
+    @Published var reverbAmount: Float = 0 { didSet { applyReverb() } }
+    @Published var reverbPreset = 3 { didSet { applyReverb() } }
+    @Published var musicLevel: Float = 0.7 { didSet { musicMixer.outputVolume = musicLevel } }
     @Published var padLevel: Float = 0.7 { didSet { padMixer.outputVolume = padLevel } }
     @Published var outputLevel: Float = 0.8 { didSet { engine.mainMixerNode.outputVolume = outputLevel } }
 
-    static let presetNames = ["Sala", "Estudio", "Hall", "Catedral"]
-    private static let presets: [AVAudioUnitReverbPreset] = [.smallRoom, .mediumRoom, .largeHall, .cathedral]
+    /// Seis presets, como la consola. Nombres propios: no se conocen los del equipo real.
+    static let presetNames = ["Sala", "Estudio", "Placa", "Hall", "Catedral", "Estadio"]
+    private static let presets: [AVAudioUnitReverbPreset] = [.smallRoom, .mediumRoom, .plate, .mediumHall, .cathedral, .largeHall2]
 
     // MARK: - Encendido / apagado
 
@@ -70,6 +76,7 @@ final class CasterEngine: ObservableObject {
         engine.stop()
         running = false
         status = "Apagada"
+        musicDb = -60; micDb = -60; padDb = -60; outputDb = -60
     }
 
     private func configureSession() throws {
@@ -92,7 +99,7 @@ final class CasterEngine: ObservableObject {
         for band in micEQ.bands { band.bypass = false; band.gain = 0 }
 
         engine.attach(micEQ); engine.attach(reverb); engine.attach(micMixer)
-        engine.attach(musicPlayer); engine.attach(padMixer)
+        engine.attach(musicPlayer); engine.attach(musicMixer); engine.attach(padMixer)
         padPlayers.forEach { engine.attach($0) }
 
         let input = engine.inputNode
@@ -101,19 +108,33 @@ final class CasterEngine: ObservableObject {
         engine.connect(micEQ, to: reverb, format: inputFormat)
         engine.connect(reverb, to: micMixer, format: nil)
         engine.connect(micMixer, to: engine.mainMixerNode, format: nil)
-        engine.connect(musicPlayer, to: engine.mainMixerNode, format: nil)
+        engine.connect(musicPlayer, to: musicMixer, format: nil)
+        engine.connect(musicMixer, to: engine.mainMixerNode, format: nil)
         padPlayers.forEach { engine.connect($0, to: padMixer, format: padFormat) }
         engine.connect(padMixer, to: engine.mainMixerNode, format: nil)
 
         let main = engine.mainMixerNode
         main.installTap(onBus: 0, bufferSize: 1024, format: main.outputFormat(forBus: 0)) { [weak self] buffer, _ in
-            self?.handleTap(buffer)
+            self?.handleMainTap(buffer)
+        }
+        // Medidores por señal. Se miden a la salida de cada mezclador, cuyo formato no cambia al cargar archivos.
+        micMixer.installTap(onBus: 0, bufferSize: 1024, format: nil) { [weak self] buffer, _ in
+            let db = CasterEngine.peakDb(buffer)
+            DispatchQueue.main.async { self?.micDb = db }
+        }
+        musicMixer.installTap(onBus: 0, bufferSize: 1024, format: nil) { [weak self] buffer, _ in
+            let db = CasterEngine.peakDb(buffer)
+            DispatchQueue.main.async { self?.musicDb = db }
+        }
+        padMixer.installTap(onBus: 0, bufferSize: 1024, format: nil) { [weak self] buffer, _ in
+            let db = CasterEngine.peakDb(buffer)
+            DispatchQueue.main.async { self?.padDb = db }
         }
 
         loadFactoryTones()
         applyMic(); applyReverb()
         micEQ.globalGain = gainDb
-        musicPlayer.volume = musicLevel
+        musicMixer.outputVolume = musicLevel
         padMixer.outputVolume = padLevel
         main.outputVolume = outputLevel
     }
@@ -122,20 +143,24 @@ final class CasterEngine: ObservableObject {
 
     private func applyReverb() {
         reverb.loadFactoryPreset(Self.presets[reverbPreset])
-        reverb.wetDryMix = reverbOn ? reverbAmount * 100 : 0
+        reverb.wetDryMix = reverbAmount * 100
     }
 
     // MARK: - Medidor y grabación
 
-    private func handleTap(_ buffer: AVAudioPCMBuffer) {
+    private func handleMainTap(_ buffer: AVAudioPCMBuffer) {
         if let file = recordingFile { try? file.write(from: buffer) }
-        guard let data = buffer.floatChannelData else { return }
+        let db = CasterEngine.peakDb(buffer)
+        DispatchQueue.main.async { self.outputDb = db }
+    }
+
+    private static func peakDb(_ buffer: AVAudioPCMBuffer) -> Float {
+        guard let data = buffer.floatChannelData else { return -60 }
         var peak: Float = 0
         for ch in 0..<Int(buffer.format.channelCount) {
             for i in 0..<Int(buffer.frameLength) { peak = max(peak, abs(data[ch][i])) }
         }
-        let db = peak > 0.000_001 ? 20 * log10(peak) : -60
-        DispatchQueue.main.async { self.outputDb = max(-60, db) }
+        return peak > 0.000_001 ? max(-60, 20 * log10(peak)) : -60
     }
 
     /// Graba la mezcla final en Documentos (equivalente práctico a STREAM OUT en iPad).
@@ -169,7 +194,7 @@ final class CasterEngine: ObservableObject {
             let file = try AVAudioFile(forReading: url)
             musicPlayer.stop()
             engine.disconnectNodeOutput(musicPlayer)
-            engine.connect(musicPlayer, to: engine.mainMixerNode, format: file.processingFormat)
+            engine.connect(musicPlayer, to: musicMixer, format: file.processingFormat)
             musicPlayer.scheduleFile(file, at: nil, completionHandler: nil)
             if running { musicPlayer.play() }
         } catch {
@@ -178,6 +203,10 @@ final class CasterEngine: ObservableObject {
     }
 
     func stopMusic() { musicPlayer.stop() }
+
+    func cycleReverbPreset() { reverbPreset = (reverbPreset + 1) % Self.presetNames.count }
+
+    func isPadPlaying(_ index: Int) -> Bool { padPlayers[index].isPlaying }
 
     func triggerPad(_ index: Int) {
         guard running, let buffer = padBuffers[index] else { return }

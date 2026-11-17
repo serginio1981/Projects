@@ -39,8 +39,9 @@ Uso:
 Si el paquete no abre, crea un proyecto "App" nuevo, copia `CasterEngine.swift` y `ConsoleView.swift`, y
 agrega el permiso de micrófono (`NSMicrophoneUsageDescription`).
 
-El prototipo de iPad cubre un canal de micrófono (ganancia, EQ, fader, mute, reverb), música desde archivo,
-soundpad, medidor de salida y grabación de la mezcla. iPadOS no permite que una app actúe como micrófono de
+El prototipo de iPad usa la misma disposición de consola que Windows y cubre un canal de micrófono (ganancia,
+EQ, fader, mute, reverb con 6 presets), música desde archivo, soundpad, medidores y grabación de la mezcla. Los
+controles aún no implementados en iPad aparecen atenuados. iPadOS no permite que una app actúe como micrófono de
 otras apps; la mezcla sale por audífonos/jack/interfaz USB-C.
 
 ## Instaladores (GitHub Actions)
