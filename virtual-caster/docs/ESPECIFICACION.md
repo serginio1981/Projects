@@ -3,10 +3,12 @@
 Consola de podcast/streaming **virtual** para Windows y iPad, que reproduce por software las funciones de una
 consola física de sobremesa (2 entradas de micrófono, música, soundpad, efectos y salidas de transmisión/audífonos).
 
-> **Origen de la información.** El inventario de funciones se obtuvo **únicamente de la fotografía** del equipo
-> (rótulos del panel superior y trasero). No se consultó el manual del fabricante ni se identificó el modelo
-> exacto. Donde el comportamiento no es evidente por el rótulo, está marcado como **(supuesto)** y debe
-> validarse contra el manual o el equipo real.
+> **Origen de la información.** El equipo de referencia es la **Maono Maonocaster E2 Gen2** (modelo indicado
+> por el usuario). El inventario parte de la fotografía del equipo y se complementó con una búsqueda web.
+> **Ninguna fuente pudo abrirse directamente** (la red del entorno de desarrollo bloqueó los sitios del
+> fabricante y de manuales): lo que se indica como "según extractos" proviene de fragmentos devueltos por el
+> buscador sobre copias del manual y el FAQ del fabricante, coincidentes entre sí pero **no cotejados contra el
+> manual oficial**. Antes de darlo por definitivo debe verificarse con el manual (ver §7).
 
 ## 1. Decisiones tomadas
 
@@ -24,25 +26,25 @@ consola física de sobremesa (2 entradas de micrófono, música, soundpad, efect
 | Control | Función | Windows (prototipo) | iPad (prototipo) |
 |---|---|---|---|
 | GAIN 1 / GAIN 2 | Ganancia de entrada de cada micrófono | ✅ ±20 dB | ✅ un solo canal |
-| LOW / MID / HI | EQ de 3 bandas, ±10 dB | ✅ común a ambos micrófonos (supuesto) | ✅ |
+| LOW / MID / HI | EQ de 3 bandas sobre las entradas de micrófono/instrumento (según extractos). Rango en dB y si es común a ambos canales: sin confirmar | ✅ ±10 dB, común a ambos micrófonos (supuesto) | ✅ |
 | HEADPHONE | Nivel de audífonos | ✅ | — (una sola salida) |
-| MUSIC (perilla grande) | Nivel de la música (AUX/BT/USB) | ✅ | ✅ |
-| OUTPUT (perilla grande) | Nivel de la mezcla de salida | ✅ | ✅ |
+| MUSIC (perilla grande) | Nivel de la música que entra por AUX IN y Bluetooth (según extractos) | ✅ | ✅ |
+| OUTPUT (perilla grande) | Nivel de las salidas USB-C y STREAM OUT (según extractos) | ✅ | ✅ |
 | Fader 1 / 2 | Nivel de cada micrófono | ✅ | ✅ un solo canal |
 | Mute 1 / 2 | Silencia cada micrófono | ✅ | ✅ |
 | 48V 1 / 2 | Alimentación phantom | ⛔ no aplica | ⛔ no aplica |
-| SOUNDPAD (8 pads) | Dispara clips de audio | ✅ tonos de fábrica o archivo | ✅ |
+| SOUNDPAD (8 pads) | Dispara clips grabados por el usuario; vienen vacíos y admiten unos 20 s por pad (según extractos) | ✅ tonos de fábrica o archivo (sin grabación desde el micrófono, sin límite de 20 s) | ✅ |
 | PAD VOL | Nivel del soundpad | ✅ | ✅ |
-| BT | Entrada de audio por Bluetooth | ⏳ fase 2 | ⏳ por evaluar |
-| MONITOR | Escuchar los micrófonos en audífonos (supuesto) | ✅ | — |
-| REVERB + REVERB PRESETS | Cantidad y tipo de reverberación | ✅ 4 presets | ✅ 4 presets |
-| DRY/WET | Activa/desactiva la reverb en la voz (supuesto) | ✅ | ✅ |
+| BT | Entrada de música por Bluetooth, comparte la perilla MUSIC (según extractos) | ⏳ fase 2 | ⏳ por evaluar |
+| MONITOR | Monitoreo directo de micrófono/instrumento en audífonos (según extractos) | ✅ | — |
+| REVERB + REVERB PRESETS | Intensidad (en el mínimo queda desactivada) y 6 presets (según extractos). Nombres de los presets: sin confirmar | ✅ 6 presets con nombres y sonido propios | ✅ 4 presets |
+| DRY/WET | Modo de grabación: DRY graba la voz sin efectos, WET con efectos; por defecto WET (según extractos) | ✅ DRY quita los efectos de la transmisión; los audífonos los conservan (supuesto) | ⚠️ distinto: solo enciende/apaga la reverb |
 | SIDE CHAIN | Baja la música al hablar (ducking) | ✅ | ⏳ fase 2 |
-| SING ALONG | Atenúa la voz principal de la música (supuesto) | ✅ cancelación de centro | ⏳ fase 2 |
-| LOOP BACK | Incluye el audio del computador en la transmisión | ✅ | ⛔ no posible (ver §4) |
-| NOISE REDUCER | Reducción de ruido | ✅ puerta de ruido (aproximación) | ⏳ fase 2 |
-| PITCH | Cambio de tono de la voz | ⏳ fase 2 | ⏳ fase 2 |
-| AUTO-TUNE + selector de tonalidad (A…Ab) | Corrección de afinación | ⏳ fase 2 | ⏳ fase 2 |
+| SING ALONG | Quita la voz de la música. Dos modos: Sing Along (solo en la transmisión) y Music Only (también en audífonos) (según extractos) | ✅ ambos modos, por cancelación de centro | ⏳ fase 2 |
+| LOOP BACK | Devuelve por USB el audio que reproduce el computador, para que entre en la grabación (según extractos) | ✅ | ⛔ no posible (ver §4) |
+| NOISE REDUCER | Reducción de ruido de fondo, ciclo apagado → bajo → alto (según extractos) | ✅ tres estados, con puerta de ruido (aproximación) | ⏳ fase 2 |
+| PITCH | Cambio de tono de la voz; en el centro queda apagado (según extractos) | ⏳ fase 2 | ⏳ fase 2 |
+| AUTO-TUNE + selector de tonalidad (A…Ab) | Corrección de afinación con 12 tonalidades (según extractos) | ⏳ fase 2 | ⏳ fase 2 |
 | Medidores (MUSIC, 1, 2, SOUNDPAD, HEADPHONES, OUTPUT) | Nivel por señal | ✅ los 6 | ✅ solo OUTPUT |
 | Indicador de batería | Carga de la batería interna | ⛔ no aplica | ⛔ no aplica |
 
@@ -68,12 +70,12 @@ sistema operativo expone como dispositivo de audio (interfaz USB-C, micrófono U
 Mic 1 ─► GAIN ─► puerta de ruido ─► EQ ─► fader ─► mute ─┐
 Mic 2 ─► GAIN ─► puerta de ruido ─► EQ ─► fader ─► mute ─┴─► voz ─┬─────────────► (seca)
                                                                   └─► REVERB ───► (húmeda × cantidad)
-Música ─► SING ALONG ─► nivel MUSIC ─► SIDE CHAIN (controlado por la voz)
+Música ─► nivel MUSIC ─► SIDE CHAIN (controlado por la voz) ─► SING ALONG (por salida)
 Pads ──► PAD VOL
 Sistema (LOOP BACK)
 
-Transmisión = (voz + reverb + música + pads [+ sistema]) × OUTPUT    ─► limitador ─► cable virtual
-Audífonos   = (música + pads [+ voz + reverb si MONITOR]) × HEADPHONE ─► limitador ─► audífonos
+Transmisión = (voz [+ reverb si WET] + música + pads [+ sistema]) × OUTPUT ─► limitador ─► cable virtual
+Audífonos   = (música + pads [+ voz + reverb si MONITOR]) × HEADPHONE      ─► limitador ─► audífonos
 ```
 
 Formato interno: 48 kHz, float de 32 bits, estéreo.
@@ -127,9 +129,28 @@ C/C++ compartida invocada desde C# y Swift.
 
 | Componente | Estado |
 |---|---|
-| `VirtualCaster.Core` | Compilado y con 20 pruebas unitarias aprobadas (en Linux, .NET 8) |
-| `AudioHost.cs` (enlace WASAPI) | Compilado contra NAudio 2.2.1; **no ejecutado** (requiere Windows y dispositivos de audio) |
-| Ventana WPF (`MainWindow`) | **No compilada ni ejecutada**: el SDK de escritorio de Windows no estaba disponible en el entorno de desarrollo. Solo se validó que el XAML es XML bien formado y que los nombres coinciden con el código |
-| App iPad | **No compilada ni ejecutada**: no había toolchain de Apple disponible |
+| `VirtualCaster.Core` | Compilado y con 24 pruebas unitarias aprobadas (Linux y Windows, .NET 8) |
+| `AudioHost.cs` (enlace WASAPI) | Compilado en GitHub Actions; **no ejecutado** (requiere dispositivos de audio) |
+| Ventana WPF (`MainWindow`) | Compilada en GitHub Actions (Windows); **no ejecutada** |
+| Instalador de Windows | Generado en GitHub Actions; **no instalado ni ejecutado** |
+| App iPad | Compilada en GitHub Actions (macOS) como `.ipa` sin firmar; **no ejecutada** en un iPad ni en simulador |
 
 Ningún componente ha sido probado todavía con audio real.
+
+## 7. Datos del equipo real pendientes de verificar
+
+Fuentes primarias a consultar (no pudieron abrirse desde el entorno de desarrollo): el manual de usuario
+"E2 Gen2" publicado por Maono en `update.maono.com` y las preguntas frecuentes del E2 Gen2 en `faq.maono.com`.
+
+Sin confirmar:
+
+- Nombres y sonido de los 6 presets de reverb.
+- Rango en dB del EQ y si es común a ambos canales.
+- Funcionamiento detallado de AUTO-TUNE (encendido, selección de tonalidad) y rango de PITCH.
+- Qué oyen los audífonos en modo DRY.
+- Diferencia entre STREAM OUT 1 y 2, y función del puerto DC 5V.
+- Compatibilidad explícita con iPad.
+
+Datos con fuentes discrepantes (según extractos): profundidad de bits (16 bits según copias del manual, 24 bits
+según algunas tiendas; frecuencia 44,1/48 kHz), batería (2000 mAh frente a 1500 mAh) y versión de Bluetooth
+(4.2 frente a 5.0). No afectan al software, pero no deben citarse como hechos sin verificarlos.

@@ -1,0 +1,31 @@
+# Definición del proyecto de Xcode para XcodeGen (https://github.com/yonaskolb/XcodeGen).
+# El workflow de GitHub Actions ejecuta "xcodegen generate" y luego compila con xcodebuild.
+# En un Mac: brew install xcodegen && xcodegen generate && open VirtualCaster.xcodeproj
+name: VirtualCaster
+options:
+  deploymentTarget:
+    iOS: "16.0"
+targets:
+  VirtualCaster:
+    type: application
+    platform: iOS
+    sources:
+      - path: VirtualCaster.swiftpm
+        # Sin esto, Xcode trata la carpeta .swiftpm como un recurso y no compila los .swift.
+        type: group
+        excludes:
+          - Package.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.virtualcaster
+        PRODUCT_NAME: VirtualCaster
+        TARGETED_DEVICE_FAMILY: "2"
+        SWIFT_VERSION: "5.0"
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "VirtualCaster necesita el micrófono para mezclar tu voz."
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UIRequiresFullScreen: YES
