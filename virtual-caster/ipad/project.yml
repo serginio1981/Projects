@@ -11,6 +11,8 @@ targets:
     platform: iOS
     sources:
       - path: VirtualCaster.swiftpm
+        # Sin esto, Xcode trata la carpeta .swiftpm como un recurso y no compila los .swift.
+        type: group
         excludes:
           - Package.swift
     settings:

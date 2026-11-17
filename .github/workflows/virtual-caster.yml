@@ -108,6 +108,13 @@ jobs:
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
             build
 
+      - name: Comprobar que la app contiene el ejecutable
+        run: |
+          APP=build/Release-iphoneos/VirtualCaster.app
+          ls -la "$APP"
+          test -f "$APP/VirtualCaster" || { echo "::error::La app no contiene el ejecutable: los fuentes Swift no se compilaron"; exit 1; }
+          test ! -e "$APP/VirtualCaster.swiftpm" || { echo "::error::Los fuentes se copiaron como recurso dentro de la app"; exit 1; }
+
       - name: Empaquetar .ipa sin firmar
         run: |
           mkdir -p dist/Payload
