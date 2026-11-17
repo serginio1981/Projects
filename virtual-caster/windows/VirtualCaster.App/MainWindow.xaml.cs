@@ -102,11 +102,9 @@ public partial class MainWindow : Window
         m.HeadphoneLevel = (float)slPhones.Value; m.PadLevel = (float)slPadVol.Value;
         m.ReverbAmount = (float)slReverb.Value;
         m.Monitor = tgMonitor.IsChecked == true;
-        m.ReverbEnabled = tgDryWet.IsChecked == true;
+        m.DryRecording = tgDry.IsChecked == true;
         m.SideChain = tgSide.IsChecked == true;
-        m.SingAlong = tgSing.IsChecked == true;
         m.Loopback = tgLoop.IsChecked == true;
-        m.NoiseReducer = tgNoise.IsChecked == true;
     }
 
     private void OnPreset(object sender, RoutedEventArgs e)
@@ -115,6 +113,30 @@ public partial class MainWindow : Window
         var next = values[(Array.IndexOf(values, _host.Engine.ReverbPreset) + 1) % values.Length];
         _host.Engine.ReverbPreset = next;
         btnPreset.Content = $"REVERB: {next}";
+    }
+
+    private void OnSing(object sender, RoutedEventArgs e)
+    {
+        var m = _host.Engine;
+        m.SingAlong = (SingAlongMode)(((int)m.SingAlong + 1) % 3);
+        btnSing.Content = m.SingAlong switch
+        {
+            SingAlongMode.SingAlong => "SING ALONG",
+            SingAlongMode.MusicOnly => "MUSIC ONLY",
+            _ => "SING ALONG: off",
+        };
+    }
+
+    private void OnNoise(object sender, RoutedEventArgs e)
+    {
+        var m = _host.Engine;
+        m.NoiseReducer = (NoiseReduction)(((int)m.NoiseReducer + 1) % 3);
+        btnNoise.Content = m.NoiseReducer switch
+        {
+            NoiseReduction.Low => "NOISE RED.: bajo",
+            NoiseReduction.High => "NOISE RED.: alto",
+            _ => "NOISE RED.: off",
+        };
     }
 
     private void OnStartStop(object sender, RoutedEventArgs e)

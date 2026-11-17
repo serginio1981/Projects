@@ -155,14 +155,14 @@
                     <TextBlock Text="PITCH (fase 2)" Style="{StaticResource Label}" />
                     <Slider IsEnabled="False" Minimum="-12" Maximum="12" Value="0" />
                     <TextBlock Text="REVERB" Style="{StaticResource Label}" />
-                    <Slider x:Name="slReverb" Minimum="0" Maximum="1" Value="0.3" ValueChanged="OnParam" />
+                    <Slider x:Name="slReverb" Minimum="0" Maximum="1" Value="0" ValueChanged="OnParam" ToolTip="En el mínimo la reverberación queda desactivada." />
                     <UniformGrid Columns="2" Margin="0,14,0,0">
                         <Button x:Name="btnPreset" Content="REVERB: Hall" Height="44" Margin="4" FontSize="11" FontWeight="SemiBold" Click="OnPreset" />
                         <ToggleButton x:Name="tgSide" Content="SIDE CHAIN" Click="OnParam" />
-                        <ToggleButton x:Name="tgDryWet" Content="DRY / WET" Click="OnParam" />
-                        <ToggleButton x:Name="tgSing" Content="SING ALONG" Click="OnParam" />
+                        <ToggleButton x:Name="tgDry" Content="DRY (sin efectos)" Click="OnParam" ToolTip="Activado: la transmisión recibe la voz sin efectos (DRY). Desactivado: con efectos (WET)." />
+                        <Button x:Name="btnSing" Content="SING ALONG: off" Height="44" Margin="4" FontSize="11" FontWeight="SemiBold" Click="OnSing" />
                         <ToggleButton x:Name="tgLoop" Content="LOOP BACK" Click="OnParam" />
-                        <ToggleButton x:Name="tgNoise" Content="NOISE REDUCER" Click="OnParam" />
+                        <Button x:Name="btnNoise" Content="NOISE RED.: off" Height="44" Margin="4" FontSize="11" FontWeight="SemiBold" Click="OnNoise" />
                     </UniformGrid>
                 </StackPanel>
             </Border>

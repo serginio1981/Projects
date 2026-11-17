@@ -1,6 +1,7 @@
 namespace VirtualCaster.Core;
 
-public enum ReverbPreset { Sala, Estudio, Hall, Catedral }
+/// <summary>Seis presets, como la consola. Los nombres y el sonido son propios: no se conocen los del equipo real.</summary>
+public enum ReverbPreset { Sala, Estudio, Placa, Hall, Catedral, Estadio }
 
 /// <summary>
 /// Reverberación estilo Freeverb (8 filtros peine + 4 pasa-todo por canal; algoritmo de dominio público de "Jezar").
@@ -40,8 +41,10 @@ public sealed class Reverb
         {
             ReverbPreset.Sala => (0.30f, 0.60f),
             ReverbPreset.Estudio => (0.50f, 0.50f),
+            ReverbPreset.Placa => (0.60f, 0.10f),
             ReverbPreset.Hall => (0.75f, 0.35f),
-            _ => (0.92f, 0.20f),
+            ReverbPreset.Catedral => (0.92f, 0.20f),
+            _ => (1.00f, 0.45f),
         };
         float feedback = room * 0.28f + 0.7f, d = damp * 0.4f;
         foreach (var c in _combL) { c.Feedback = feedback; c.Damp = d; }

@@ -1,7 +1,8 @@
 # virtual-caster
 
 Consola de podcast/streaming virtual para Windows y iPad: 2 micrófonos con ganancia, EQ y fader, música,
-soundpad de 8 pads, reverb, side chain, loop back y salidas separadas de transmisión y audífonos.
+soundpad de 8 pads, reverb, side chain, loop back y salidas separadas de transmisión y audífonos. Toma como
+referencia la consola física Maono Maonocaster E2 Gen2.
 
 **Estado: prototipo sin probar con audio real.** Ver el detalle en
 [docs/ESPECIFICACION.md](docs/ESPECIFICACION.md) (funciones, arquitectura, limitaciones y estado de verificación).

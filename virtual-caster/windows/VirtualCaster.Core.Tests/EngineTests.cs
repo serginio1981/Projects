@@ -94,7 +94,7 @@ public class EngineTests
     [Fact]
     public void Reverb_agrega_energia_y_cola()
     {
-        var e = Flat(); e.ReverbEnabled = true; e.ReverbAmount = 1; e.ReverbPreset = ReverbPreset.Catedral;
+        var e = Flat(); e.ReverbAmount = 1; e.ReverbPreset = ReverbPreset.Catedral;
         int n = Fs;
         var mic = new float[n];
         Array.Copy(Sine(440, Fs / 10), mic, Fs / 10); // 100 ms de tono y luego silencio
@@ -118,11 +118,39 @@ public class EngineTests
     }
 
     [Fact]
-    public void SingAlong_cancela_el_centro()
+    public void SingAlong_quita_el_centro_solo_en_transmision_y_MusicOnly_en_ambas()
     {
-        var e = Flat(); e.SingAlong = true;
-        var (s, _) = Run(e, null, Stereo(Sine(500, Fs)));
+        var music = Stereo(Sine(500, Fs));
+        var e = Flat(); e.SingAlong = SingAlongMode.SingAlong;
+        var (s, p) = Run(e, null, music);
         Assert.True(Rms(s) < 1e-4f);
+        Assert.True(Rms(p) > 0.1f);
+        var e2 = Flat(); e2.SingAlong = SingAlongMode.MusicOnly;
+        var (s2, p2) = Run(e2, null, music);
+        Assert.True(Rms(s2) < 1e-4f);
+        Assert.True(Rms(p2) < 1e-4f);
+    }
+
+    [Fact]
+    public void Dry_deja_la_transmision_sin_reverb_pero_no_los_audifonos()
+    {
+        var mic = Sine(1000, Fs);
+        var wet = Flat(); wet.ReverbAmount = 1; wet.Monitor = true;
+        var (sw, _) = Run(wet, mic);
+        var dry = Flat(); dry.ReverbAmount = 1; dry.Monitor = true; dry.DryRecording = true;
+        var (sd, pd) = Run(dry, mic);
+        Assert.InRange(Rms(sd) / Rms(mic), 0.98f, 1.02f);          // transmisión = voz seca
+        Assert.True(MathF.Abs(Rms(sw) - Rms(sd)) > 0.002f);        // en WET la reverb sí llega a la transmisión
+        Assert.True(MathF.Abs(Rms(pd) - Rms(sd)) > 0.002f);        // audífonos siguen con efectos
+    }
+
+    [Fact]
+    public void Reverb_en_cero_no_altera_la_voz()
+    {
+        var mic = Sine(1000, Fs);
+        var e = Flat(); e.ReverbAmount = 0;
+        var (s, _) = Run(e, mic);
+        Assert.InRange(Rms(s) / Rms(mic), 0.999f, 1.001f);
     }
 
     [Fact]
@@ -137,17 +165,31 @@ public class EngineTests
         Assert.True(Rms(phones) < 1e-4f);
     }
 
-    [Fact]
-    public void NoiseReducer_atenua_ruido_bajo_y_respeta_voz()
+    [Theory]
+    [InlineData(NoiseReduction.Low)]
+    [InlineData(NoiseReduction.High)]
+    public void NoiseReducer_atenua_ruido_bajo_y_respeta_voz(NoiseReduction nivel)
     {
-        var e = Flat(); e.NoiseReducer = true;
+        var e = Flat(); e.NoiseReducer = nivel;
         var ruido = Sine(1000, Fs, 0.001f); // −60 dBFS
         var (s, _) = Run(e, ruido);
         Assert.True(Db.FromLinear(Rms(s) / Rms(ruido)) < -25f);
-        var e2 = Flat(); e2.NoiseReducer = true;
+        var e2 = Flat(); e2.NoiseReducer = nivel;
         var voz = Sine(1000, Fs, 0.25f);
         var (s2, _) = Run(e2, voz);
         Assert.InRange(Rms(s2) / Rms(voz), 0.97f, 1.02f);
+    }
+
+    [Fact]
+    public void NoiseReducer_alto_corta_ruido_que_el_bajo_deja_pasar()
+    {
+        var ruido = Sine(1000, Fs, 0.007f); // ≈ −43 dBFS: entre ambos umbrales
+        var lo = Flat(); lo.NoiseReducer = NoiseReduction.Low;
+        var hi = Flat(); hi.NoiseReducer = NoiseReduction.High;
+        var (sl, _) = Run(lo, ruido);
+        var (sh, _) = Run(hi, ruido);
+        Assert.InRange(Rms(sl) / Rms(ruido), 0.95f, 1.02f);
+        Assert.True(Db.FromLinear(Rms(sh) / Rms(ruido)) < -25f);
     }
 
     [Fact]
