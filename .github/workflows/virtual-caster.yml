@@ -77,6 +77,22 @@ jobs:
       - name: Compilar el instalador
         run: iscc "/DAppVersion=$env:VERSION" installer\VirtualCaster.iss
 
+      - name: Prueba de arranque y captura de la ventana
+        shell: pwsh
+        run: |
+          $png = Join-Path $PWD 'dist\VirtualCaster-captura.png'
+          $p = Start-Process -FilePath (Join-Path $PWD 'publish\VirtualCaster.exe') -ArgumentList '--screenshot', "`"$png`"" -PassThru
+          if (-not $p.WaitForExit(90000)) { $p.Kill(); throw 'La app no terminó en 90 s' }
+          if (Test-Path "$png.error.txt") { Get-Content "$png.error.txt"; throw 'La app falló al dibujar la ventana' }
+          if ($p.ExitCode -ne 0) { throw "La app terminó con código $($p.ExitCode)" }
+          if (-not (Test-Path $png)) { throw 'La app no generó la captura' }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VirtualCaster-Windows-captura
+          path: virtual-caster/windows/dist/*.png
+          if-no-files-found: error
+
       - uses: actions/upload-artifact@v4
         with:
           name: VirtualCaster-Windows-Setup
