@@ -4,3 +4,7 @@ obj/
 *.user
 .build/
 xcuserdata/
+publish/
+dist/
+build/
+*.xcodeproj/

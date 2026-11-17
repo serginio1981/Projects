@@ -41,3 +41,34 @@ agrega el permiso de micrófono (`NSMicrophoneUsageDescription`).
 El prototipo de iPad cubre un canal de micrófono (ganancia, EQ, fader, mute, reverb), música desde archivo,
 soundpad, medidor de salida y grabación de la mezcla. iPadOS no permite que una app actúe como micrófono de
 otras apps; la mezcla sale por audífonos/jack/interfaz USB-C.
+
+## Instaladores (GitHub Actions)
+
+El workflow `.github/workflows/virtual-caster.yml` compila ambas apps en cada pull request y en cada cambio en
+`main`, y deja los resultados como artefactos de la ejecución (pestaña **Actions** del repositorio):
+
+| Artefacto | Contenido | Limitación |
+|---|---|---|
+| `VirtualCaster-Windows-Setup` | Instalador `.exe` (Inno Setup), autocontenido, x64 | **Sin firma de código**: Windows SmartScreen mostrará una advertencia al ejecutarlo |
+| `VirtualCaster-iPad-unsigned-ipa` | `.ipa` de la app de iPad | **Sin firmar: no se puede instalar directamente en un iPad** |
+
+Para publicar una versión con ambos archivos adjuntos en un Release, crea una etiqueta con el formato
+`virtual-caster-vX.Y.Z`.
+
+### Sobre el instalador de iPad
+
+Apple exige que toda app instalada en un iPad esté firmada. Un `.ipa` instalable requiere una cuenta del
+Apple Developer Program (de pago), un certificado de distribución y un perfil de aprovisionamiento, guardados
+como secretos del repositorio. Mientras eso no exista, el workflow solo puede producir el `.ipa` sin firmar,
+que sirve para comprobar que la app compila y como base para firmarlo después. La alternativa sin cuenta de
+pago es abrir el proyecto en Xcode (en un Mac) e instalarlo en tu propio iPad con un Apple ID gratuito.
+
+En un Mac, el proyecto de Xcode se genera con:
+
+```bash
+brew install xcodegen
+```
+
+```bash
+cd virtual-caster/ipad && xcodegen generate
+```
