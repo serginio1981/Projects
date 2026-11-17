@@ -37,15 +37,15 @@ consola física de sobremesa (2 entradas de micrófono, música, soundpad, efect
 | PAD VOL | Nivel del soundpad | ✅ | ✅ |
 | BT | Entrada de música por Bluetooth, comparte la perilla MUSIC (según extractos) | ⏳ fase 2 | ⏳ por evaluar |
 | MONITOR | Monitoreo directo de micrófono/instrumento en audífonos (según extractos) | ✅ | — |
-| REVERB + REVERB PRESETS | Intensidad (en el mínimo queda desactivada) y 6 presets (según extractos). Nombres de los presets: sin confirmar | ✅ 6 presets con nombres y sonido propios | ✅ 4 presets |
-| DRY/WET | Modo de grabación: DRY graba la voz sin efectos, WET con efectos; por defecto WET (según extractos) | ✅ DRY quita los efectos de la transmisión; los audífonos los conservan (supuesto) | ⚠️ distinto: solo enciende/apaga la reverb |
+| REVERB + REVERB PRESETS | Intensidad (en el mínimo queda desactivada) y 6 presets (según extractos). Nombres de los presets: sin confirmar | ✅ 6 presets con nombres y sonido propios | ✅ 6 presets (los de fábrica de Apple) |
+| DRY/WET | Modo de grabación: DRY graba la voz sin efectos, WET con efectos; por defecto WET (según extractos) | ✅ DRY quita los efectos de la transmisión; los audífonos los conservan (supuesto) | — (una sola salida: no hay mezcla de transmisión separada) |
 | SIDE CHAIN | Baja la música al hablar (ducking) | ✅ | ⏳ fase 2 |
 | SING ALONG | Quita la voz de la música. Dos modos: Sing Along (solo en la transmisión) y Music Only (también en audífonos) (según extractos) | ✅ ambos modos, por cancelación de centro | ⏳ fase 2 |
 | LOOP BACK | Devuelve por USB el audio que reproduce el computador, para que entre en la grabación (según extractos) | ✅ | ⛔ no posible (ver §4) |
 | NOISE REDUCER | Reducción de ruido de fondo, ciclo apagado → bajo → alto (según extractos) | ✅ tres estados, con puerta de ruido (aproximación) | ⏳ fase 2 |
 | PITCH | Cambio de tono de la voz; en el centro queda apagado (según extractos) | ⏳ fase 2 | ⏳ fase 2 |
 | AUTO-TUNE + selector de tonalidad (A…Ab) | Corrección de afinación con 12 tonalidades (según extractos) | ⏳ fase 2 | ⏳ fase 2 |
-| Medidores (MUSIC, 1, 2, SOUNDPAD, HEADPHONES, OUTPUT) | Nivel por señal | ✅ los 6 | ✅ solo OUTPUT |
+| Medidores (MUSIC, 1, 2, SOUNDPAD, HEADPHONES, OUTPUT) | Nivel por señal | ✅ los 6 | ✅ MUSIC, 1, SOUNDPAD y OUTPUT |
 | Indicador de batería | Carga de la batería interna | ⛔ no aplica | ⛔ no aplica |
 
 ### Panel trasero y frontal
@@ -104,6 +104,8 @@ Formato interno: 48 kHz, float de 32 bits, estéreo.
 ### iPad
 
 - App SwiftUI + `AVAudioEngine` con nodos estándar (EQ, reverb, mezcladores, reproductores).
+- La interfaz usa la misma disposición de consola que Windows (perillas, faders, medidores LED, pads). Los
+  controles que el motor de iPad aún no implementa se muestran atenuados.
 - **Una app de iPadOS no puede presentarse como micrófono para otras apps** ni capturar el audio de otras
   apps; por eso no hay equivalente a STREAM OUT ni a LOOP BACK. La mezcla sale por la ruta de audio activa
   (audífonos, jack o interfaz USB-C) y puede grabarse a archivo. Enviar la mezcla a otro equipo exige una

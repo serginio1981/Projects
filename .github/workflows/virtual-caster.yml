@@ -144,6 +144,28 @@ jobs:
           path: virtual-caster/ipad/dist/*.ipa
           if-no-files-found: error
 
+      - name: Prueba de arranque en el simulador y captura de pantalla
+        run: |
+          xcodebuild -project VirtualCaster.xcodeproj -target VirtualCaster \
+            -configuration Debug -sdk iphonesimulator SYMROOT="$PWD/build" build
+          UDID=$(xcrun simctl list devices available | grep -E '^[[:space:]]+iPad' | head -1 | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' || true)
+          test -n "$UDID" || { echo "::error::No hay un simulador de iPad disponible"; exit 1; }
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" build/Debug-iphonesimulator/VirtualCaster.app
+          OUT=$(xcrun simctl launch "$UDID" com.example.virtualcaster)
+          echo "$OUT"
+          PID=${OUT##*: }
+          sleep 12
+          kill -0 "$PID" 2>/dev/null || { echo "::error::La app se cerró al arrancar"; exit 1; }
+          xcrun simctl io "$UDID" screenshot dist/VirtualCaster-iPad-captura.png
+          xcrun simctl shutdown "$UDID"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VirtualCaster-iPad-captura
+          path: virtual-caster/ipad/dist/*.png
+          if-no-files-found: error
+
   release:
     if: github.ref_type == 'tag'
     needs: [version, windows, ipad]
@@ -163,6 +185,6 @@ jobs:
           TAG: ${{ github.ref_name }}
           VERSION: ${{ needs.version.outputs.version }}
         run: |
-          gh release create "$TAG" artifacts/* \
+          gh release create "$TAG" artifacts/*.exe artifacts/*.ipa \
             --title "VirtualCaster $VERSION" \
             --notes "Prototipo. El instalador de Windows no está firmado (SmartScreen mostrará una advertencia). El .ipa de iPad no está firmado y no se instala directamente."
