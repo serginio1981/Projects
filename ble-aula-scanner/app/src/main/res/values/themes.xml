@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tema base. La UI real usa Material3 desde Compose; este tema solo
+         necesita no depender del framework de AppCompat. -->
+    <style name="Theme.BleAulaScanner" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>
