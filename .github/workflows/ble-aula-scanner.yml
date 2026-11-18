@@ -63,6 +63,11 @@ jobs:
 
       - name: Configurar el SDK de Android
         uses: android-actions/setup-android@v3
+        with:
+          # El paquete heredado "tools" ya no existe; evitamos que intente
+          # instalarlo. El runner ya trae el SDK y el Android Gradle Plugin
+          # descarga los componentes que falten (platform/build-tools).
+          packages: ''
 
       - name: Compilar el APK de debug
         run: ./gradlew --no-daemon assembleDebug
