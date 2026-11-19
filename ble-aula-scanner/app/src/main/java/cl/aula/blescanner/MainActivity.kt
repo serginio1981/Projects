@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
             val colors = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
             MaterialTheme(colorScheme = colors) {
                 Surface {
-                    ScanScreen(viewModel)
+                    AppRoot(viewModel)
                 }
             }
         }
