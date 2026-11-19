@@ -17,7 +17,7 @@ on:
       - 'ble-aula-scanner/**'
       - '.github/workflows/ble-aula-scanner.yml'
   # Release manual sin empujar etiqueta: al indicar una versión, compila y
-  # publica el Release (crea la etiqueta ble-aula-v<versión> sobre main).
+  # publica el Release (crea la etiqueta ble-aula-v<versión> sobre el commit compilado).
   workflow_dispatch:
     inputs:
       release_version:
@@ -124,8 +124,8 @@ jobs:
             TARGET_ARG=""
           else
             TAG="ble-aula-v$VERSION"
-            # En un release manual la etiqueta se crea apuntando a main.
-            TARGET_ARG="--target main"
+            # En un release manual la etiqueta apunta al commit que se compiló.
+            TARGET_ARG="--target $GITHUB_SHA"
           fi
           gh release create "$TAG" artifacts/*.apk $TARGET_ARG \
             --title "Detector BLE Aula $VERSION" \

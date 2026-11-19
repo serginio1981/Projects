@@ -11,8 +11,8 @@ android {
         applicationId = "cl.aula.blescanner"
         minSdk = 26          // Android 8.0 — cubre tablets antiguas
         targetSdk = 34       // Android 14
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1.0"
     }
 
     buildTypes {
