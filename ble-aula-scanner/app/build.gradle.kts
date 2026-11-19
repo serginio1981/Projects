@@ -15,6 +15,18 @@ android {
         versionName = "1.1.0"
     }
 
+    // Clave de debug FIJA guardada en el repo: todas las compilaciones quedan
+    // firmadas igual y el APK se actualiza sin desinstalar. No es una clave
+    // secreta ni sirve para Play Store (eso requiere un keystore privado).
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
