@@ -1,0 +1,110 @@
+name: ble-aula-scanner
+
+# Compila la app Detector BLE Aula y genera el APK de debug como artefacto.
+#   - APK de debug: firmado con la clave de depuración de Android (instalable
+#     en la tablet activando "orígenes desconocidos"). NO apto para distribución
+#     en Play Store; para eso haría falta firma release con un keystore propio.
+# Con una etiqueta "ble-aula-v*" además publica el APK en un Release.
+
+on:
+  push:
+    branches: [main]
+    tags: ['ble-aula-v*']
+    paths:
+      - 'ble-aula-scanner/**'
+      - '.github/workflows/ble-aula-scanner.yml'
+  pull_request:
+    paths:
+      - 'ble-aula-scanner/**'
+      - '.github/workflows/ble-aula-scanner.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ble-aula-scanner-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - id: v
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          if [ "$REF_TYPE" = "tag" ]; then
+            echo "version=${REF_NAME#ble-aula-v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=0.1.$RUN_NUMBER" >> "$GITHUB_OUTPUT"
+          fi
+
+  android:
+    needs: version
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ble-aula-scanner
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurar el SDK de Android
+        uses: android-actions/setup-android@v3
+        with:
+          # El paquete heredado "tools" ya no existe; evitamos que intente
+          # instalarlo. El runner ya trae el SDK y el Android Gradle Plugin
+          # descarga los componentes que falten (platform/build-tools).
+          packages: ''
+
+      - name: Compilar el APK de debug
+        run: ./gradlew --no-daemon assembleDebug
+
+      - name: Renombrar el APK con la versión
+        run: |
+          mkdir -p dist
+          APK=$(find app/build/outputs/apk/debug -name '*.apk' | head -1)
+          test -n "$APK" || { echo "::error::No se generó ningún APK"; exit 1; }
+          cp "$APK" "dist/DetectorBLEAula-$VERSION-debug.apk"
+          ls -la dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DetectorBLEAula-debug-apk
+          path: ble-aula-scanner/dist/*.apk
+          if-no-files-found: error
+
+  release:
+    if: github.ref_type == 'tag'
+    needs: [version, android]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Publicar Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          gh release create "$TAG" artifacts/*.apk \
+            --title "Detector BLE Aula $VERSION" \
+            --notes "APK de debug firmado con la clave de depuración de Android. Para instalarlo en la tablet, activa \"orígenes desconocidos\". No apto para Play Store (requiere firma release)."
