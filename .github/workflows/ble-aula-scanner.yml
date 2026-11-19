@@ -7,12 +7,11 @@ name: ble-aula-scanner
 # Con una etiqueta "ble-aula-v*" además publica el APK en un Release.
 
 on:
+  # El push por ETIQUETA dispara el build + Release. Va sin filtro de rutas
+  # a propósito: el filtro `paths` puede impedir que una etiqueta dispare el
+  # workflow. La validación de cambios en rama se hace vía pull_request.
   push:
-    branches: [main]
     tags: ['ble-aula-v*']
-    paths:
-      - 'ble-aula-scanner/**'
-      - '.github/workflows/ble-aula-scanner.yml'
   pull_request:
     paths:
       - 'ble-aula-scanner/**'
