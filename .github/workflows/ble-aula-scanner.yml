@@ -79,6 +79,9 @@ jobs:
           # descarga los componentes que falten (platform/build-tools).
           packages: ''
 
+      - name: Pruebas unitarias (lógica JVM, sin dispositivo)
+        run: ./gradlew --no-daemon testDebugUnitTest
+
       - name: Compilar el APK de debug
         run: ./gradlew --no-daemon assembleDebug
 
