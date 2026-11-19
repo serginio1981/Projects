@@ -16,7 +16,14 @@ on:
     paths:
       - 'ble-aula-scanner/**'
       - '.github/workflows/ble-aula-scanner.yml'
+  # Release manual sin empujar etiqueta: al indicar una versión, compila y
+  # publica el Release (crea la etiqueta ble-aula-v<versión> sobre main).
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Versión a publicar como Release (ej. 1.0.0). Vacío = solo compilar.'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -35,10 +42,14 @@ jobs:
         env:
           REF_TYPE: ${{ github.ref_type }}
           REF_NAME: ${{ github.ref_name }}
+          EVENT: ${{ github.event_name }}
+          INPUT_VER: ${{ github.event.inputs.release_version }}
           RUN_NUMBER: ${{ github.run_number }}
         run: |
           if [ "$REF_TYPE" = "tag" ]; then
             echo "version=${REF_NAME#ble-aula-v}" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT" = "workflow_dispatch" ] && [ -n "$INPUT_VER" ]; then
+            echo "version=$INPUT_VER" >> "$GITHUB_OUTPUT"
           else
             echo "version=0.1.$RUN_NUMBER" >> "$GITHUB_OUTPUT"
           fi
@@ -86,7 +97,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    if: github.ref_type == 'tag'
+    if: ${{ github.ref_type == 'tag' || (github.event_name == 'workflow_dispatch' && github.event.inputs.release_version != '') }}
     needs: [version, android]
     runs-on: ubuntu-latest
     permissions:
@@ -101,9 +112,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          TAG: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
           VERSION: ${{ needs.version.outputs.version }}
         run: |
-          gh release create "$TAG" artifacts/*.apk \
+          if [ "$REF_TYPE" = "tag" ]; then
+            TAG="$REF_NAME"
+            TARGET_ARG=""
+          else
+            TAG="ble-aula-v$VERSION"
+            # En un release manual la etiqueta se crea apuntando a main.
+            TARGET_ARG="--target main"
+          fi
+          gh release create "$TAG" artifacts/*.apk $TARGET_ARG \
             --title "Detector BLE Aula $VERSION" \
             --notes "APK de debug firmado con la clave de depuración de Android. Para instalarlo en la tablet, activa \"orígenes desconocidos\". No apto para Play Store (requiere firma release)."
