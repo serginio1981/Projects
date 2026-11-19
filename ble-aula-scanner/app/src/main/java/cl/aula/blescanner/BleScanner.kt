@@ -41,6 +41,9 @@ class BleScanner(private val context: Context) {
     val isBluetoothOn: Boolean
         get() = adapter?.isEnabled == true
 
+    /** Se invoca con (MAC, RSSI) por cada anuncio recibido (radar y barrido). */
+    var onSample: ((String, Int) -> Unit)? = null
+
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             result ?: return
@@ -60,6 +63,7 @@ class BleScanner(private val context: Context) {
                 )
                 current + (address to entry)
             }
+            onSample?.invoke(address, result.rssi)
         }
 
         override fun onScanFailed(errorCode: Int) {

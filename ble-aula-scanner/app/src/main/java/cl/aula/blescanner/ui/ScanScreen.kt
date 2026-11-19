@@ -46,14 +46,7 @@ fun ScanScreen(viewModel: ScanViewModel) {
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Detector de dispositivos BLE") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
-            )
-        },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = {

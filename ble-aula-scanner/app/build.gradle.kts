@@ -11,8 +11,20 @@ android {
         applicationId = "cl.aula.blescanner"
         minSdk = 26          // Android 8.0 — cubre tablets antiguas
         targetSdk = 34       // Android 14
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1.0"
+    }
+
+    // Clave de debug FIJA guardada en el repo: todas las compilaciones quedan
+    // firmadas igual y el APK se actualiza sin desinstalar. No es una clave
+    // secreta ni sirve para Play Store (eso requiere un keystore privado).
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
     }
 
     buildTypes {
@@ -53,4 +65,6 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
+
+    testImplementation("junit:junit:4.13.2")
 }
