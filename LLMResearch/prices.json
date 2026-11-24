@@ -1,0 +1,169 @@
+{
+  "_nota": "Tarifas de terceros (agregadores), NO verificadas en la fuente oficial. Verificar en la pagina de precios de cada proveedor antes de usarlas.",
+  "moneda": "USD",
+  "unidad": "por millon de tokens",
+  "_campos": "vigente_desde / vigente_hasta: fechas ISO inclusivas; null = sin limite. lectura_cache: null = dato no disponible.",
+  "modelos": [
+    {
+      "modelo": "Claude Fable 5.2",
+      "fuente": "agregadores, sin verificar en fuente oficial",
+      "fecha": "2026-11-24",
+      "tarifas": [
+        {
+          "vigente_desde": null,
+          "vigente_hasta": null,
+          "entrada": 8,
+          "salida": 40,
+          "lectura_cache": null
+        }
+      ]
+    },
+    {
+      "modelo": "Claude Opus 5.5",
+      "fuente": "agregadores, sin verificar en fuente oficial",
+      "fecha": "2026-11-24",
+      "tarifas": [
+        {
+          "vigente_desde": null,
+          "vigente_hasta": null,
+          "entrada": 4,
+          "salida": 20,
+          "lectura_cache": null
+        }
+      ]
+    },
+    {
+      "modelo": "Claude Sonnet 5.5",
+      "fuente": "agregadores, sin verificar en fuente oficial",
+      "fecha": "2026-11-24",
+      "tarifas": [
+        {
+          "vigente_desde": null,
+          "vigente_hasta": null,
+          "entrada": 2,
+          "salida": 10,
+          "lectura_cache": null
+        }
+      ]
+    },
+    {
+      "modelo": "Claude Haiku 5.5",
+      "fuente": "agregadores, sin verificar en fuente oficial",
+      "fecha": "2026-11-24",
+      "tarifas": [
+        {
+          "vigente_desde": null,
+          "vigente_hasta": null,
+          "entrada": 0.1,
+          "salida": 0.5,
+          "lectura_cache": null
+        }
+      ]
+    },
+    {
+      "modelo": "GPT-6.2 Astra",
+      "fuente": "agregadores, sin verificar en fuente oficial",
+      "fecha": "2026-11-24",
+      "tarifas": [
+        {
+          "vigente_desde": null,
+          "vigente_hasta": null,
+          "entrada": 8,
+          "salida": 40,
+          "lectura_cache": null
+        }
+      ]
+    },
+    {
+      "modelo": "GPT-6.2 Sol",
+      "fuente": "agregadores, sin verificar en fuente oficial",
+      "fecha": "2026-11-24",
+      "tarifas": [
+        {
+          "vigente_desde": null,
+          "vigente_hasta": null,
+          "entrada": 2,
+          "salida": 10,
+          "lectura_cache": null
+        }
+      ]
+    },
+    {
+      "modelo": "GPT-6.1 Terra",
+      "fuente": "agregadores, sin verificar en fuente oficial",
+      "fecha": "2026-11-24",
+      "tarifas": [
+        {
+          "vigente_desde": null,
+          "vigente_hasta": null,
+          "entrada": 1,
+          "salida": 5,
+          "lectura_cache": null
+        }
+      ]
+    },
+    {
+      "modelo": "GPT-6 Luna",
+      "fuente": "agregadores, sin verificar en fuente oficial",
+      "fecha": "2026-11-24",
+      "tarifas": [
+        {
+          "vigente_desde": null,
+          "vigente_hasta": null,
+          "entrada": 0.1,
+          "salida": 0.5,
+          "lectura_cache": null
+        }
+      ]
+    },
+    {
+      "modelo": "Gemini 4 Neon",
+      "fuente": "agregadores, sin verificar en fuente oficial",
+      "fecha": "2026-11-24",
+      "tarifas": [
+        {
+          "vigente_desde": null,
+          "vigente_hasta": null,
+          "entrada": 3,
+          "salida": 15,
+          "lectura_cache": null
+        }
+      ]
+    },
+    {
+      "modelo": "Gemini 4 Carbon",
+      "fuente": "agregadores, sin verificar en fuente oficial",
+      "fecha": "2026-11-24",
+      "tarifas": [
+        {
+          "vigente_desde": null,
+          "vigente_hasta": "2026-11-30",
+          "entrada": 2,
+          "salida": 10,
+          "lectura_cache": null
+        },
+        {
+          "vigente_desde": "2026-12-01",
+          "vigente_hasta": null,
+          "entrada": 4,
+          "salida": 20,
+          "lectura_cache": null
+        }
+      ]
+    },
+    {
+      "modelo": "Gemini 4 Hydrogen",
+      "fuente": "agregadores, sin verificar en fuente oficial",
+      "fecha": "2026-11-24",
+      "tarifas": [
+        {
+          "vigente_desde": null,
+          "vigente_hasta": null,
+          "entrada": 1.5,
+          "salida": 7.5,
+          "lectura_cache": null
+        }
+      ]
+    }
+  ]
+}
