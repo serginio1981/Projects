@@ -1,0 +1,48 @@
+{
+  "_nota": "TODOS los valores de este archivo son SUPUESTOS editables, no mediciones. Ajustalos a tu proyecto.",
+  "_campos": {
+    "tokens_mes": "Tokens totales al mes (entrada + salida), sin contar razonamiento. Supuesto por defecto: 20000.",
+    "proporcion_entrada": "Fraccion de tokens_mes que es entrada. Supuesto por defecto: 0.80.",
+    "proporcion_salida": "Fraccion de tokens_mes que es salida. Supuesto por defecto: 0.20.",
+    "multiplicador_razonamiento": "Tokens de salida facturados en esfuerzo alto / tokens de salida en esfuerzo bajo. null = sin dato: debes definirlo aqui o con --multiplicador-razonamiento.",
+    "tasa_fallo_esfuerzo_bajo": "Fraccion (0 a 1) de tareas que fallan en esfuerzo bajo y se reintentan una vez en alto. null = sin dato: debes definirlo aqui o con --tasa-fallo."
+  },
+  "escenarios": [
+    {
+      "id": "analisis-codigo-legado",
+      "nombre": "Análisis de código legado",
+      "tokens_mes": 20000,
+      "proporcion_entrada": 0.8,
+      "proporcion_salida": 0.2,
+      "multiplicador_razonamiento": null,
+      "tasa_fallo_esfuerzo_bajo": null
+    },
+    {
+      "id": "migracion-refactor",
+      "nombre": "Migración / refactor",
+      "tokens_mes": 20000,
+      "proporcion_entrada": 0.8,
+      "proporcion_salida": 0.2,
+      "multiplicador_razonamiento": null,
+      "tasa_fallo_esfuerzo_bajo": null
+    },
+    {
+      "id": "generacion-pruebas",
+      "nombre": "Generación de pruebas",
+      "tokens_mes": 20000,
+      "proporcion_entrada": 0.8,
+      "proporcion_salida": 0.2,
+      "multiplicador_razonamiento": null,
+      "tasa_fallo_esfuerzo_bajo": null
+    },
+    {
+      "id": "documentacion",
+      "nombre": "Documentación",
+      "tokens_mes": 20000,
+      "proporcion_entrada": 0.8,
+      "proporcion_salida": 0.2,
+      "multiplicador_razonamiento": null,
+      "tasa_fallo_esfuerzo_bajo": null
+    }
+  ]
+}

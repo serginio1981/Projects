@@ -1,0 +1,14 @@
+# Secretos: nunca deben subirse
+.env
+.env.*
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Salidas locales
+*.csv
